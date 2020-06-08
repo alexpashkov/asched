@@ -5,18 +5,17 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/alexpashkov/manysched/graph/generated"
-	"github.com/alexpashkov/manysched/graph/model"
+	"github.com/alexpashkov/asched/graph/generated"
+	"github.com/alexpashkov/asched/graph/model"
 )
 
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) AddAmenity(ctx context.Context, input model.NewAmenity) (string, error) {
+	return r.AmenitiesService.AddAmenity(ctx, input)
 }
 
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *queryResolver) Ping(ctx context.Context) (bool, error) {
+	return true, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
