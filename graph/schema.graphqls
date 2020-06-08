@@ -2,27 +2,30 @@
 #
 # https://gqlgen.com/getting-started/
 
-type Todo {
-  id: ID!
-  text: String!
-  done: Boolean!
-  user: User!
-}
-
-type User {
-  id: ID!
-  name: String!
-}
-
 type Query {
-  todos: [Todo!]!
-}
-
-input NewTodo {
-  text: String!
-  userId: String!
+  ping: Boolean!
 }
 
 type Mutation {
-  createTodo(input: NewTodo!): Todo!
+  addAmenity(input: NewAmenity!): ID!
+}
+
+scalar Upload
+
+input NewAmenity {
+  name: String!
+  type: String!
+  latitude: Float!
+  longitude: Float!
+  photo: Upload
+  description: String
+}
+
+type Amenity {
+  id: ID!
+  name: String!
+  type: String!
+  latitude: Float!
+  longitude: Float!
+  description: String
 }
