@@ -7,7 +7,7 @@ import (
 )
 
 func TestSchedule(t *testing.T) {
-	t.Run("start time cannot be after end", func(t *testing.T) {
+	t.Run("duration must be positive", func(t *testing.T) {
 		t.Parallel()
 		s := NewSchedule()
 		require.NoError(t, s.Book(time.Now(), 1))

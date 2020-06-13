@@ -2,7 +2,6 @@ package schedule
 
 import (
 	"github.com/umpc/go-sortedmap"
-	"log"
 	"time"
 )
 
@@ -35,7 +34,6 @@ func (s *Schedule) Book(start time.Time, duration time.Duration) error {
 		return err
 	}
 	if len(keys) > 0 || !s.bookings.Insert(booking.Start, booking) {
-		log.Println(keys, "false")
 		return ErrBooked
 	}
 	return nil
