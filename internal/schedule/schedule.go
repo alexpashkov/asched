@@ -2,16 +2,15 @@ package schedule
 
 import (
 	"github.com/umpc/go-sortedmap"
+	"log"
 	"time"
 )
-
-// as a user I can book a slot if its empty
 
 func NewSchedule() *Schedule {
 	var s Schedule
 	s.bookings = sortedmap.New(0, func(i, j interface{}) bool {
 		a, b := i.(Booking), j.(Booking)
-		return a.Start < b.Start && a.Start+a.Duration < b.Start
+		return a.Start < b.Start && a.Start+a.Duration <= b.Start
 	})
 	return &s
 }
@@ -27,7 +26,7 @@ func (s *Schedule) Book(start time.Time, duration time.Duration) error {
 	}
 	booking := Booking{
 		Start:    start.Unix(),
-		Duration: int64(duration),
+		Duration: int64(duration.Seconds()),
 	}
 	keys, err := s.bookings.BoundedKeys(booking, Booking{
 		Start: booking.Start + booking.Duration,
@@ -36,6 +35,7 @@ func (s *Schedule) Book(start time.Time, duration time.Duration) error {
 		return err
 	}
 	if len(keys) > 0 || !s.bookings.Insert(booking.Start, booking) {
+		log.Println(keys, "false")
 		return ErrBooked
 	}
 	return nil
