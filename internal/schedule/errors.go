@@ -3,5 +3,6 @@ package schedule
 import "errors"
 
 var (
-	ErrInvalidRange = errors.New("err invalid range")
+	ErrInvalidDuration = errors.New("ErrInvalidDuration")
+	ErrBooked          = errors.New("ErrBooked")
 )
