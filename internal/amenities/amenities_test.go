@@ -2,7 +2,6 @@ package amenities
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/alexpashkov/asched/graph/model"
 	"github.com/alexpashkov/asched/internal/config"
 	"github.com/stretchr/testify/require"
@@ -26,8 +25,7 @@ func TestAmenitiesService(t *testing.T) {
 	})
 	ctx, cancel = context.WithTimeout(context.Background(), time.Minute)
 	t.Cleanup(cancel)
-	confBuf, err := json.MarshalIndent(conf, "", "\t")
-	t.Logf("connecting to MongoDB, conf: %s", confBuf)
+	t.Logf("connecting to MongoDB, conf: %#v", conf)
 	require.NoError(t, client.Ping(ctx, nil))
 	s := NewService(client, conf.MongoDBConnString.Database, nil)
 	t.Run("add amenity", func(t *testing.T) {
