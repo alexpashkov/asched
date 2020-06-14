@@ -24,7 +24,7 @@ func TestAmenitiesService(t *testing.T) {
 	t.Cleanup(func() {
 		require.NoError(t, client.Disconnect(ctx))
 	})
-	ctx, cancel = context.WithTimeout(context.Background(), time.Second*30)
+	ctx, cancel = context.WithTimeout(context.Background(), time.Second*130)
 	t.Cleanup(cancel)
 	require.NoError(t, client.Ping(ctx, nil))
 	s := NewService(client, conf.MongoDBConnString.Database, nil)
