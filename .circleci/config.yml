@@ -23,6 +23,10 @@ jobs:
           key: v1-pkg-cache
           paths:
             - "/go/pkg"
-      - run: go test -v ./...
+      - run:
+          name: Run unit tests
+          command: |
+            trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
+            go test -v ./... | tee ${TEST_RESULTS}/go-test.out
       - store_test_results: # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
           path: /tmp/test-results
