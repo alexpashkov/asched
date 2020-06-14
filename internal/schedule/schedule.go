@@ -23,7 +23,6 @@ func (s *Schedule) Book(start time.Time, duration time.Duration) error {
 	if duration <= 0 {
 		return ErrInvalidDuration
 	}
-
 	booking := Booking{
 		Start:    start.Unix(),
 		Duration: int64(duration.Seconds()),
