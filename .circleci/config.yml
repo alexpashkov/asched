@@ -57,3 +57,6 @@ workflows:
           filters:
             branches:
               only: master # only run deploy-via-git job on master branchorbs:
+orbs:
+  heroku: circleci/heroku@1.0.1
+
