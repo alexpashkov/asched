@@ -18,6 +18,10 @@ func (r *queryResolver) Ping(ctx context.Context) (bool, error) {
 	return true, nil
 }
 
+func (r *queryResolver) Amenities(ctx context.Context, lat float64, lon float64, typeArg *string) ([]*model.Amenity, error) {
+	return r.AmenitiesService.SearchAmenities(ctx, lat, lon, 100, typeArg)
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 

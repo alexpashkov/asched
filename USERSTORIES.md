@@ -4,8 +4,8 @@
     - location (latitude, longitude) (required)
     - description 
     - photo~~
-- As a user I can add photos to an existing amenity
 - As a user I can search amenities in a given area, potentially filtering by type
+- As a user I can add photos to an existing amenity
 - As a user I can identify an amenity by photo and location (both are required)
 - As a user I can see amenity's schedule
 - As a user I can reserve an amenity for a time everybody else deems sensible (e.g

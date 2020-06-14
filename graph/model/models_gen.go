@@ -10,16 +10,16 @@ type Amenity struct {
 	ID          string  `json:"id"`
 	Name        string  `json:"name"`
 	Type        string  `json:"type"`
-	Latitude    float64 `json:"latitude"`
-	Longitude   float64 `json:"longitude"`
+	Lat         float64 `json:"lat"`
+	Lon         float64 `json:"lon"`
 	Description *string `json:"description"`
 }
 
 type NewAmenity struct {
 	Name        string          `json:"name"`
 	Type        string          `json:"type"`
-	Latitude    float64         `json:"latitude"`
-	Longitude   float64         `json:"longitude"`
+	Lat         float64         `json:"lat"`
+	Lon         float64         `json:"lon"`
 	Photo       *graphql.Upload `json:"photo"`
 	Description *string         `json:"description"`
 }

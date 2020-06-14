@@ -4,6 +4,7 @@
 
 type Query {
   ping: Boolean!
+  amenities(lat: Float!, lon: Float!, type: String): [Amenity!]!
 }
 
 type Mutation {
@@ -15,8 +16,8 @@ scalar Upload
 input NewAmenity {
   name: String!
   type: String!
-  latitude: Float!
-  longitude: Float!
+  lat: Float!
+  lon: Float!
   photo: Upload
   description: String
 }
@@ -25,7 +26,7 @@ type Amenity {
   id: ID!
   name: String!
   type: String!
-  latitude: Float!
-  longitude: Float!
+  lat: Float!
+  lon: Float!
   description: String
 }

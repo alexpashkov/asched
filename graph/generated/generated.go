@@ -46,8 +46,8 @@ type ComplexityRoot struct {
 	Amenity struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Latitude    func(childComplexity int) int
-		Longitude   func(childComplexity int) int
+		Lat         func(childComplexity int) int
+		Lon         func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Type        func(childComplexity int) int
 	}
@@ -57,7 +57,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Ping func(childComplexity int) int
+		Amenities func(childComplexity int, lat float64, lon float64, typeArg *string) int
+		Ping      func(childComplexity int) int
 	}
 }
 
@@ -66,6 +67,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Ping(ctx context.Context) (bool, error)
+	Amenities(ctx context.Context, lat float64, lon float64, typeArg *string) ([]*model.Amenity, error)
 }
 
 type executableSchema struct {
@@ -97,19 +99,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Amenity.ID(childComplexity), true
 
-	case "Amenity.latitude":
-		if e.complexity.Amenity.Latitude == nil {
+	case "Amenity.lat":
+		if e.complexity.Amenity.Lat == nil {
 			break
 		}
 
-		return e.complexity.Amenity.Latitude(childComplexity), true
+		return e.complexity.Amenity.Lat(childComplexity), true
 
-	case "Amenity.longitude":
-		if e.complexity.Amenity.Longitude == nil {
+	case "Amenity.lon":
+		if e.complexity.Amenity.Lon == nil {
 			break
 		}
 
-		return e.complexity.Amenity.Longitude(childComplexity), true
+		return e.complexity.Amenity.Lon(childComplexity), true
 
 	case "Amenity.name":
 		if e.complexity.Amenity.Name == nil {
@@ -136,6 +138,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.AddAmenity(childComplexity, args["input"].(model.NewAmenity)), true
+
+	case "Query.amenities":
+		if e.complexity.Query.Amenities == nil {
+			break
+		}
+
+		args, err := ec.field_Query_amenities_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Amenities(childComplexity, args["lat"].(float64), args["lon"].(float64), args["type"].(*string)), true
 
 	case "Query.ping":
 		if e.complexity.Query.Ping == nil {
@@ -214,6 +228,7 @@ var sources = []*ast.Source{
 
 type Query {
   ping: Boolean!
+  amenities(lat: Float!, lon: Float!, type: String): [Amenity!]!
 }
 
 type Mutation {
@@ -225,8 +240,8 @@ scalar Upload
 input NewAmenity {
   name: String!
   type: String!
-  latitude: Float!
-  longitude: Float!
+  lat: Float!
+  lon: Float!
   photo: Upload
   description: String
 }
@@ -235,8 +250,8 @@ type Amenity {
   id: ID!
   name: String!
   type: String!
-  latitude: Float!
-  longitude: Float!
+  lat: Float!
+  lon: Float!
   description: String
 }`, BuiltIn: false},
 }
@@ -271,6 +286,36 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_amenities_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 float64
+	if tmp, ok := rawArgs["lat"]; ok {
+		arg0, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["lat"] = arg0
+	var arg1 float64
+	if tmp, ok := rawArgs["lon"]; ok {
+		arg1, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["lon"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["type"]; ok {
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["type"] = arg2
 	return args, nil
 }
 
@@ -412,7 +457,7 @@ func (ec *executionContext) _Amenity_type(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Amenity_latitude(ctx context.Context, field graphql.CollectedField, obj *model.Amenity) (ret graphql.Marshaler) {
+func (ec *executionContext) _Amenity_lat(ctx context.Context, field graphql.CollectedField, obj *model.Amenity) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -429,7 +474,7 @@ func (ec *executionContext) _Amenity_latitude(ctx context.Context, field graphql
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Latitude, nil
+		return obj.Lat, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -446,7 +491,7 @@ func (ec *executionContext) _Amenity_latitude(ctx context.Context, field graphql
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Amenity_longitude(ctx context.Context, field graphql.CollectedField, obj *model.Amenity) (ret graphql.Marshaler) {
+func (ec *executionContext) _Amenity_lon(ctx context.Context, field graphql.CollectedField, obj *model.Amenity) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -463,7 +508,7 @@ func (ec *executionContext) _Amenity_longitude(ctx context.Context, field graphq
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Longitude, nil
+		return obj.Lon, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -584,6 +629,47 @@ func (ec *executionContext) _Query_ping(ctx context.Context, field graphql.Colle
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_amenities(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_amenities_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Amenities(rctx, args["lat"].(float64), args["lon"].(float64), args["type"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Amenity)
+	fc.Result = res
+	return ec.marshalNAmenity2ᚕᚖgithubᚗcomᚋalexpashkovᚋaschedᚋgraphᚋmodelᚐAmenityᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1728,15 +1814,15 @@ func (ec *executionContext) unmarshalInputNewAmenity(ctx context.Context, obj in
 			if err != nil {
 				return it, err
 			}
-		case "latitude":
+		case "lat":
 			var err error
-			it.Latitude, err = ec.unmarshalNFloat2float64(ctx, v)
+			it.Lat, err = ec.unmarshalNFloat2float64(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "longitude":
+		case "lon":
 			var err error
-			it.Longitude, err = ec.unmarshalNFloat2float64(ctx, v)
+			it.Lon, err = ec.unmarshalNFloat2float64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -1792,13 +1878,13 @@ func (ec *executionContext) _Amenity(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "latitude":
-			out.Values[i] = ec._Amenity_latitude(ctx, field, obj)
+		case "lat":
+			out.Values[i] = ec._Amenity_lat(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "longitude":
-			out.Values[i] = ec._Amenity_longitude(ctx, field, obj)
+		case "lon":
+			out.Values[i] = ec._Amenity_lon(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -1870,6 +1956,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_ping(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "amenities":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_amenities(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -2134,6 +2234,57 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
+
+func (ec *executionContext) marshalNAmenity2githubᚗcomᚋalexpashkovᚋaschedᚋgraphᚋmodelᚐAmenity(ctx context.Context, sel ast.SelectionSet, v model.Amenity) graphql.Marshaler {
+	return ec._Amenity(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAmenity2ᚕᚖgithubᚗcomᚋalexpashkovᚋaschedᚋgraphᚋmodelᚐAmenityᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Amenity) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAmenity2ᚖgithubᚗcomᚋalexpashkovᚋaschedᚋgraphᚋmodelᚐAmenity(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNAmenity2ᚖgithubᚗcomᚋalexpashkovᚋaschedᚋgraphᚋmodelᚐAmenity(ctx context.Context, sel ast.SelectionSet, v *model.Amenity) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Amenity(ctx, sel, v)
+}
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	return graphql.UnmarshalBoolean(v)
