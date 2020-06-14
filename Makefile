@@ -2,13 +2,13 @@ GOFILES = $(shell find . -name '*.go')
 
 default: build
 
-workdir:
-	mkdir -p workdir
+bin:
+	mkdir -p bin
 
-build: workdir/asched
+build: bin/asched
 
 build-native: $(GOFILES)
-	go build -o workdir/native-asched .
+	go build -o bin/native-asched .
 
-workdir/asched: $(GOFILES)
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o workdir/conaschedmd/main.go
+bin/asched: $(GOFILES)
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bin/asched cmd/main.go

@@ -32,7 +32,7 @@ jobs: # basic units of work in a run
             - "/go/pkg/mod"
       - run:
           name: Start service
-          command: ./workdir/asched
+          command: ./bin/asched
           background: true # keep service running and proceed to next step
 
       - run:
