@@ -16,7 +16,6 @@ func TestAmenitiesService(t *testing.T) {
 	}
 	conf, err := config.ReadConfig(t.Logf)
 	require.NoError(t, err)
-	t.Logf("config is %#v", conf)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	t.Cleanup(cancel)
 	client, err := mongo.Connect(ctx)
@@ -24,8 +23,9 @@ func TestAmenitiesService(t *testing.T) {
 	t.Cleanup(func() {
 		require.NoError(t, client.Disconnect(ctx))
 	})
-	ctx, cancel = context.WithTimeout(context.Background(), time.Second*130)
+	ctx, cancel = context.WithTimeout(context.Background(), time.Second*30)
 	t.Cleanup(cancel)
+	t.Log("connecting to MongoDB", conf.MongoDBRawConnString)
 	require.NoError(t, client.Ping(ctx, nil))
 	s := NewService(client, conf.MongoDBConnString.Database, nil)
 	id, err := s.AddAmenity(ctx, model.NewAmenity{
