@@ -27,7 +27,7 @@ jobs:
           name: Run short tests
           command: |
             trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
-            go test -v -shot ./... | tee ${TEST_RESULTS}/go-test.out
+            go test -v -short ./... | tee ${TEST_RESULTS}/go-test.out
       - run:
           name: Run long tests
           command: |
