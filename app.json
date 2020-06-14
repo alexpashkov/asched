@@ -5,7 +5,7 @@
         "mongolab:in-dyno"
       ],
       "env": {
-        "MONGODB_URI": "mongodb://heroku_csl1nw7k:4lqrmd8gpuld6g1onqvom0hc07@ds255768.mlab.com:55768/heroku_csl1nw7k"
+        "MONGODB_DB_NAME": "test"
       }
     }
   }
