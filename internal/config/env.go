@@ -16,7 +16,7 @@ const (
 	portEnvVar              = "PORT"
 	defaultPort             = "8080"
 	mongoDBConnStringEnvVar = "MONGODB_URI"
-	defaultMongoDBURI       = "mongodb://localhost:27017/test/"
+	defaultMongoDBURI       = "mongodb://localhost:27017/test"
 )
 
 func ReadConfig(logf func(string, ...interface{})) (Config, error) {
