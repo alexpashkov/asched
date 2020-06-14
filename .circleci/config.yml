@@ -23,6 +23,7 @@ jobs:
           key: v1-pkg-cache
           paths:
             - "/go/pkg"
+      - run: go get github.com/jstemmer/go-junit-report
       - run:
           name: Run unit tests
           command: |
