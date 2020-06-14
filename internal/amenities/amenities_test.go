@@ -14,7 +14,7 @@ func TestAmenitiesService(t *testing.T) {
 	if testing.Short() {
 		t.Skip("short testing enabled")
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	t.Cleanup(cancel)
 	conf, err := config.ReadConfig(t.Logf)
 	require.NoError(t, err)
