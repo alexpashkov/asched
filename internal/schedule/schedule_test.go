@@ -32,7 +32,7 @@ func TestSchedule(t *testing.T) {
 		s := NewSchedule()
 		bookingTime := time.Now()
 		require.NoError(t, s.Book(bookingTime, time.Hour))
-		err := s.Book(bookingTime.Add(time.Hour-1), time.Hour)
+		err := s.Book(bookingTime.Add(time.Hour-time.Second), time.Hour)
 		require.Error(t, err)
 		require.Equal(t, ErrBooked, err)
 	})

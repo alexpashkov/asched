@@ -24,8 +24,8 @@ func (s *Schedule) Book(start time.Time, duration time.Duration) error {
 		return ErrInvalidDuration
 	}
 	booking := Booking{
-		Start:    start.UnixNano(),
-		Duration: duration.Nanoseconds(),
+		Start:    start.Unix(),
+		Duration: int64(duration.Seconds()),
 	}
 	keys, err := s.bookings.BoundedKeys(booking, Booking{
 		Start: booking.Start + booking.Duration,
