@@ -33,6 +33,7 @@ func ReadConfig(logf func(string, ...interface{})) (Config, error) {
 		logf("%s not set, applying default %s", mongoDBConnStringEnvVar, defaultMongoDBURI)
 		c.MongoDBRawConnString = defaultMongoDBURI
 	}
+	c.MongoDBRawConnString += "?retryWrites=false"
 	if c.MongoDBConnString, err = connstring.Parse(c.MongoDBRawConnString); err != nil {
 		return c, errors.Wrap(err, "failed to parse MongoDB conn string")
 	}
