@@ -24,14 +24,9 @@ jobs:
             - "/go/pkg"
       - run: go get github.com/jstemmer/go-junit-report
       - run:
-          name: Run short tests
+          name: Run tests
           command: |
             trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
-            go test -v -short ./... | tee ${TEST_RESULTS}/go-test.out
-      - run:
-          name: Run long tests
-          command: |
-            trap "go-junit-report <${TEST_RESULTS}/go-test.out >> ${TEST_RESULTS}/go-test-report.xml" EXIT
             go test -v ./... | tee ${TEST_RESULTS}/go-test.out
       - store_test_results: # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
           path: /tmp/test-results
