@@ -28,12 +28,14 @@ func TestAmenitiesService(t *testing.T) {
 	t.Log("connecting to MongoDB", conf.MongoDBRawConnString)
 	require.NoError(t, client.Ping(ctx, nil))
 	s := NewService(client, conf.MongoDBConnString.Database, nil)
-	id, err := s.AddAmenity(ctx, model.NewAmenity{
-		Name: time.Now().Format(time.UnixDate),
-		Type: "TennisCourt",
-		Lat:  0,
-		Lon:  0,
+	t.Run("add amenity", func(t *testing.T) {
+		id, err := s.AddAmenity(ctx, model.NewAmenity{
+			Name: time.Now().Format(time.UnixDate),
+			Type: "TennisCourt",
+			Lat:  0,
+			Lon:  0,
+		})
+		require.NoError(t, err)
+		t.Log("amenity", id, "created")
 	})
-	require.NoError(t, err)
-	t.Log(id)
 }
