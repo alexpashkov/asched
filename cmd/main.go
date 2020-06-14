@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"github.com/alexpashkov/asched/internal/amenities"
+	"github.com/alexpashkov/asched/internal/env"
+	"github.com/alexpashkov/asched/internal/mongo"
 	"github.com/alexpashkov/asched/internal/photos"
 	"github.com/pkg/errors"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
 	"os"
@@ -21,13 +21,13 @@ import (
 const defaultPort = "8080"
 
 func main() {
-	port := os.Getenv("PORT")
+	port := env.PORT()
 	if port == "" {
 		port = defaultPort
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	mongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("MONGODB_URI")+"?retryWrites=false"))
+	mongoClient, err := mongo.Connect(ctx)
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to create MongoDB client"))
 	}
@@ -37,7 +37,7 @@ func main() {
 		generated.Config{Resolvers: &graph.Resolver{
 			AmenitiesService: amenities.NewService(
 				mongoClient,
-				os.Getenv("MONGODB_DB_NAME"),
+				env.MONGODB_DB_NAME(),
 				photos.NewService(os.Getenv("PHOTOS_DIR")),
 			)}},
 	))

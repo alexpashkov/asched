@@ -2,6 +2,7 @@ package amenities
 
 import (
 	"context"
+	"encoding/hex"
 	"github.com/alexpashkov/asched/graph/model"
 	"github.com/alexpashkov/asched/internal/photos"
 	"github.com/pkg/errors"
@@ -73,6 +74,15 @@ func (s *Service) SearchAmenities(ctx context.Context, latitude, longitude float
 		res = append(res, &am)
 	}
 	return res, cur.Err()
+}
+
+func (s *Service) DeleteAmenity(ctx context.Context, id string) error {
+	var mongoID primitive.ObjectID
+	if _, err := hex.Decode(mongoID[:], []byte(id)); err != nil {
+		return err
+	}
+	_, err := s.mongoCollection().DeleteOne(ctx, bson.M{"_id": mongoID})
+	return err
 }
 
 func (s *Service) mongoCollection() *mongo.Collection {
