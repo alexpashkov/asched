@@ -1,8 +1,8 @@
 {
   "environments": {
     "test": {
-      "addons":[
-        "mongolab:in-dyno"
+      "addons": [
+        "mongolab"
       ]
     }
   }
