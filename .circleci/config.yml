@@ -1,4 +1,4 @@
-version: 2 # use CircleCI 2.0
+version: 2.1 # use CircleCI 2.0
 jobs: # basic units of work in a run
   build: # runs not using Workflows must have a `build` job as entry point
     docker: # run the steps with Docker
@@ -47,8 +47,3 @@ jobs: # basic units of work in a run
 
       - store_test_results: # upload test results for display in Test Summary
           path: /tmp/test-results
-workflows:
-  version: 2
-  build-workflow:
-    jobs:
-      - build
