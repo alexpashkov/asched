@@ -9,7 +9,9 @@ func NewSchedule() *Schedule {
 	var s Schedule
 	s.bookings = sortedmap.New(0, func(i, j interface{}) bool {
 		a, b := i.(Booking), j.(Booking)
-		return a.Start < b.Start && a.Start+a.Duration <= b.Start
+		return a.Start.Before(b.Start) &&
+			a.Start.Add(a.Duration).Before(b.Start) ||
+			a.Start.Add(a.Duration).Equal(b.Start)
 	})
 	return &s
 }
@@ -24,11 +26,11 @@ func (s *Schedule) Book(start time.Time, duration time.Duration) error {
 		return ErrInvalidDuration
 	}
 	booking := Booking{
-		Start:    start.Unix(),
-		Duration: int64(duration.Seconds()),
+		Start:    start,
+		Duration: duration,
 	}
 	keys, err := s.bookings.BoundedKeys(booking, Booking{
-		Start: booking.Start + booking.Duration,
+		Start: booking.Start.Add(booking.Duration),
 	})
 	if err != nil && err.Error() != "No values found that were equal to or within the given bounds." {
 		return err
@@ -40,7 +42,3 @@ func (s *Schedule) Book(start time.Time, duration time.Duration) error {
 }
 
 type Validator func(Booking) error
-
-type Booking struct {
-	Start, Duration int64
-}
