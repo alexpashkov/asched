@@ -167,8 +167,7 @@ func (s *Service) AddPhoto(id string, file io.Reader) (string, error) {
 
 func (s *Service) GetPhotoIDs(id string) ([]string, error) {
 	var res []string
-	return res, filepath.Walk(
-		filepath.Join(s.photosDir, id),
+	err := filepath.Walk(filepath.Join(s.photosDir, id),
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
@@ -177,6 +176,10 @@ func (s *Service) GetPhotoIDs(id string) ([]string, error) {
 			return nil
 		},
 	)
+	if err != nil && err != os.ErrNotExist {
+		return nil, err
+	}
+	return res, nil
 }
 
 func (s *Service) mongoCollection() *mongo.Collection {
