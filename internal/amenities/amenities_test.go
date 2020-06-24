@@ -41,7 +41,7 @@ func TestAmenitiesService(t *testing.T) {
 	t.Run("add amenity", func(t *testing.T) {
 		id, err := s.AddAmenity(ctx, model.NewAmenity{
 			Name: time.Now().Format(time.UnixDate),
-			Type: "TennisCourt",
+			Type: []string{"TennisCourt"},
 			Lat:  0,
 			Lon:  0,
 		})

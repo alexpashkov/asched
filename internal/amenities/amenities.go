@@ -142,7 +142,7 @@ func (s *Service) mongoCollection() *mongo.Collection {
 type mongoAmenity struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty"`
 	Name        string             `bson:"name"`
-	Type        string             `bson:"type"`
+	Type        []string           `bson:"type"`
 	Location    location           `bson:"location"`
 	Description *string            `bson:"description"`
 }

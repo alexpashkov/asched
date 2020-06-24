@@ -3,30 +3,30 @@
 # https://gqlgen.com/getting-started/
 
 type Query {
-  ping: Boolean!
-  amenities(lat: Float!, lon: Float!, type: String): [Amenity!]!
+    amenities(lat: Float!, lon: Float!, type: String): [Amenity!]
 }
 
 type Mutation {
-  addAmenity(input: NewAmenity!): ID!
+    addAmenity(input: NewAmenity!): ID!
 }
 
 scalar Upload
 
 input NewAmenity {
-  name: String!
-  type: String!
-  lat: Float!
-  lon: Float!
-  photo: Upload
-  description: String
+    name: String!
+    type: [String!]!
+    lat: Float!
+    lon: Float!
+    photo: Upload
+    description: String
 }
 
 type Amenity {
-  id: ID!
-  name: String!
-  type: String!
-  lat: Float!
-  lon: Float!
-  description: String
+    id: ID!
+    name: String!
+    type: [String!]!
+    lat: Float!
+    lon: Float!
+    description: String
+    photos: [String!]
 }
