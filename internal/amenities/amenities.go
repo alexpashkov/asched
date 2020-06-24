@@ -13,6 +13,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"syscall"
 )
 
 type Service struct {
@@ -176,8 +177,12 @@ func (s *Service) GetPhotoIDs(id string) ([]string, error) {
 			return nil
 		},
 	)
-	if err != nil && err != os.ErrNotExist {
-		return nil, err
+	if err != nil {
+		if err, ok := err.(*os.PathError); ok && err.Err == syscall.ENOENT {
+			return nil, nil
+		} else {
+			return nil, errors.Wrap(err, "failed to get photos")
+		}
 	}
 	return res, nil
 }
