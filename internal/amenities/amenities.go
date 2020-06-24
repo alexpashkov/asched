@@ -4,24 +4,27 @@ import (
 	"context"
 	"encoding/hex"
 	"github.com/alexpashkov/asched/graph/model"
-	"github.com/alexpashkov/asched/internal/photos"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"io"
+	"os"
+	"path/filepath"
 )
 
 type Service struct {
 	mongoClient *mongo.Client
 	mongoDBName string
-	photosSrv   *photos.Service
+	photosDir   string
 }
 
-func NewService(mongoClient *mongo.Client, mongoDBName string, photosSrv *photos.Service) *Service {
+func NewService(mongoClient *mongo.Client, mongoDBName, photosDir string) *Service {
 	return &Service{
 		mongoClient: mongoClient,
 		mongoDBName: mongoDBName,
-		photosSrv:   photosSrv,
+		photosDir:   photosDir,
 	}
 }
 
@@ -38,10 +41,7 @@ func (s *Service) AddAmenity(ctx context.Context, newAm model.NewAmenity) (strin
 		}
 		id = oid.Hex()
 		if newAm.Photo != nil && newAm.Photo.File != nil {
-			return errors.Wrap(
-				s.photosSrv.SavePhoto(id, newAm.Photo.File),
-				"failed to save the photo",
-			)
+			return errors.Wrap(s.AddPhoto(id, newAm.Photo.File), "failed to save the photo")
 		}
 		return nil
 	})
@@ -83,6 +83,47 @@ func (s *Service) DeleteAmenity(ctx context.Context, id string) error {
 	}
 	_, err := s.mongoCollection().DeleteOne(ctx, bson.M{"_id": mongoID})
 	return err
+}
+
+func (s *Service) AddPhotos(ctx context.Context, id string, files ...io.Reader) error {
+	for _, file := range files {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			if err := s.AddPhoto(id, file); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (s *Service) AddPhoto(id string, file io.Reader) error {
+	photoID := uuid.New().String()
+	if photoID == "" {
+		return errors.New("generated empty uuid")
+	}
+	dst, err := os.Create(filepath.Join(s.photosDir, id, photoID))
+	if err != nil {
+		return errors.Wrap(err, "failed to create a file")
+	}
+	_, err = io.Copy(dst, file)
+	return errors.Wrap(err, "failed to write to the file")
+}
+
+func (s *Service) GetPhotoPaths(id string) ([]string, error) {
+	var res []string
+	return res, filepath.Walk(
+		filepath.Join(s.photosDir, id),
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			res = append(res, info.Name())
+			return nil
+		},
+	)
 }
 
 func (s *Service) mongoCollection() *mongo.Collection {

@@ -27,7 +27,7 @@ func TestAmenitiesService(t *testing.T) {
 	t.Cleanup(cancel)
 	t.Logf("connecting to MongoDB, conf: %#v", conf)
 	require.NoError(t, client.Ping(ctx, nil))
-	s := NewService(client, conf.MongoDBConnString.Database, nil)
+	s := NewService(client, conf.MongoDBConnString.Database, "")
 	t.Run("add amenity", func(t *testing.T) {
 		id, err := s.AddAmenity(ctx, model.NewAmenity{
 			Name: time.Now().Format(time.UnixDate),

@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/alexpashkov/asched/internal/amenities"
 	"github.com/alexpashkov/asched/internal/config"
-	"github.com/alexpashkov/asched/internal/photos"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -37,7 +36,7 @@ func main() {
 			AmenitiesService: amenities.NewService(
 				mongoClient,
 				conf.MongoDBConnString.Database,
-				photos.NewService(os.Getenv("PHOTOS_DIR")),
+				os.Getenv("PHOTOS_DIR"),
 			)}},
 	))
 
