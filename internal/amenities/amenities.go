@@ -85,34 +85,37 @@ func (s *Service) DeleteAmenity(ctx context.Context, id string) error {
 	return err
 }
 
-func (s *Service) AddPhotos(ctx context.Context, id string, files ...io.Reader) error {
+func (s *Service) AddPhotos(ctx context.Context, id string, files ...io.Reader) ([]string, error) {
+	IDs := make([]string, len(files))
 	for _, file := range files {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return nil, ctx.Err()
 		default:
-			if err := s.AddPhoto(id, file); err != nil {
-				return err
+			if id, err := s.AddPhoto(id, file); err != nil {
+				return nil, err
+			} else {
+				IDs = append(IDs, id)
 			}
 		}
 	}
-	return nil
+	return IDs, nil
 }
 
-func (s *Service) AddPhoto(id string, file io.Reader) error {
+func (s *Service) AddPhoto(id string, file io.Reader) (string, error) {
 	photoID := uuid.New().String()
 	if photoID == "" {
-		return errors.New("generated empty uuid")
+		return photoID, errors.New("generated empty uuid")
 	}
 	dst, err := os.Create(filepath.Join(s.photosDir, id, photoID))
 	if err != nil {
-		return errors.Wrap(err, "failed to create a file")
+		return photoID, errors.Wrap(err, "failed to create a file")
 	}
 	_, err = io.Copy(dst, file)
-	return errors.Wrap(err, "failed to write to the file")
+	return photoID, errors.Wrap(err, "failed to write to the file")
 }
 
-func (s *Service) GetPhotoPaths(id string) ([]string, error) {
+func (s *Service) GetPhotoIDs(id string) ([]string, error) {
 	var res []string
 	return res, filepath.Walk(
 		filepath.Join(s.photosDir, id),
