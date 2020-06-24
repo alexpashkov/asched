@@ -28,6 +28,35 @@ func NewService(mongoClient *mongo.Client, mongoDBName, photosDir string) *Servi
 	}
 }
 
+func (s *Service) Start(ctx context.Context) error {
+	cur, err := s.mongoCollection().Indexes().List(ctx)
+	if err != nil {
+		return errors.Wrap(err, "failed to list indexes")
+	}
+	defer cur.Close(ctx)
+	var indexes []bson.M
+	if err := cur.All(ctx, &indexes); err != nil {
+		return err
+	}
+	if !hasLocationIndex(indexes) {
+		if _, err := s.mongoCollection().Indexes().CreateOne(ctx, mongo.IndexModel{
+			Keys: bson.M{"location": "2dsphere"},
+		}); err != nil {
+			return errors.Wrap(err, "failed to create an index")
+		}
+	}
+	return nil
+}
+
+func hasLocationIndex(indexes []bson.M) bool {
+	for _, index := range indexes {
+		if index["name"] == "location_2dsphere" {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *Service) AddAmenity(ctx context.Context, newAm model.NewAmenity) (string, error) {
 	var id string
 	return id, s.mongoClient.UseSession(ctx, func(sessionContext mongo.SessionContext) error {

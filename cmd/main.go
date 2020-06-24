@@ -29,15 +29,19 @@ func main() {
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to create MongoDB client"))
 	}
+
+	amenitiesService := amenities.NewService(
+		mongoClient,
+		conf.MongoDBConnString.Database,
+		os.Getenv("PHOTOS_DIR"),
+	)
+	if err := amenitiesService.Start(ctx); err != nil {
+		log.Fatal(errors.Wrap(err, "failed to start amenities service"))
+	}
 	cancel()
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(
-		generated.Config{Resolvers: &graph.Resolver{
-			AmenitiesService: amenities.NewService(
-				mongoClient,
-				conf.MongoDBConnString.Database,
-				os.Getenv("PHOTOS_DIR"),
-			)}},
+		generated.Config{Resolvers: &graph.Resolver{AmenitiesService: amenitiesService}},
 	))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
