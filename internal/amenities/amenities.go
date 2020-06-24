@@ -6,6 +6,7 @@ import (
 	"github.com/alexpashkov/asched/graph/model"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,13 +16,15 @@ import (
 )
 
 type Service struct {
+	logger      *logrus.Entry
 	mongoClient *mongo.Client
 	mongoDBName string
 	photosDir   string
 }
 
-func NewService(mongoClient *mongo.Client, mongoDBName, photosDir string) *Service {
+func NewService(logger *logrus.Entry, mongoClient *mongo.Client, mongoDBName, photosDir string) *Service {
 	return &Service{
+		logger:      logger,
 		mongoClient: mongoClient,
 		mongoDBName: mongoDBName,
 		photosDir:   photosDir,
@@ -38,23 +41,36 @@ func (s *Service) Start(ctx context.Context) error {
 	if err := cur.All(ctx, &indexes); err != nil {
 		return err
 	}
-	if !hasLocationIndex(indexes) {
+	if !s.hasIndexes(indexes, "location_2dsphere") {
+		s.logger.Info("creating 2dsphere index")
 		if _, err := s.mongoCollection().Indexes().CreateOne(ctx, mongo.IndexModel{
 			Keys: bson.M{"location": "2dsphere"},
 		}); err != nil {
 			return errors.Wrap(err, "failed to create an index")
 		}
+	} else {
+		s.logger.Info("found all required indexes")
 	}
 	return nil
 }
 
-func hasLocationIndex(indexes []bson.M) bool {
+func (s *Service) hasIndexes(indexes []bson.M, names ...string) bool {
+	namesMap := make(map[string]bool)
 	for _, index := range indexes {
-		if index["name"] == "location_2dsphere" {
-			return true
+		indexName, ok := index["name"].(string)
+		if ok {
+			namesMap[indexName] = true
+			s.logger.Debugf("found %s index", indexName)
+		} else {
+			s.logger.Debugf("couldn't cast index name to string, got %T", index["name"])
 		}
 	}
-	return false
+	for _, name := range names {
+		if !namesMap[name] {
+			return false
+		}
+	}
+	return true
 }
 
 func (s *Service) AddAmenity(ctx context.Context, newAm model.NewAmenity) (string, error) {
