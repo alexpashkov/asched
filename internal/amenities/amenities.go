@@ -41,7 +41,8 @@ func (s *Service) AddAmenity(ctx context.Context, newAm model.NewAmenity) (strin
 		}
 		id = oid.Hex()
 		if newAm.Photo != nil && newAm.Photo.File != nil {
-			return errors.Wrap(s.AddPhoto(id, newAm.Photo.File), "failed to save the photo")
+			_, err := s.AddPhoto(id, newAm.Photo.File)
+			return errors.Wrap(err, "failed to save the photo")
 		}
 		return nil
 	})
@@ -107,7 +108,11 @@ func (s *Service) AddPhoto(id string, file io.Reader) (string, error) {
 	if photoID == "" {
 		return photoID, errors.New("generated empty uuid")
 	}
-	dst, err := os.Create(filepath.Join(s.photosDir, id, photoID))
+	dirPath := filepath.Join(s.photosDir, id)
+	if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
+		return "", errors.Wrap(err, "failed to create a directory")
+	}
+	dst, err := os.Create(filepath.Join(dirPath, photoID))
 	if err != nil {
 		return photoID, errors.Wrap(err, "failed to create a file")
 	}

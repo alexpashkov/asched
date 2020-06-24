@@ -1,7 +1,9 @@
 package amenities
 
 import (
+	"bytes"
 	"context"
+	"crypto/rand"
 	"github.com/alexpashkov/asched/graph/model"
 	"github.com/alexpashkov/asched/internal/config"
 	"github.com/stretchr/testify/require"
@@ -47,6 +49,15 @@ func TestAmenitiesService(t *testing.T) {
 		t.Log("amenity", id, "created")
 	})
 	t.Run("add photo", func(t *testing.T) {
-		s.AddPhoto()
+		_, err := s.AddPhoto("foobar", bytes.NewReader(randBytes(t, 1024)))
+		require.NoError(t, err)
 	})
+}
+
+func randBytes(t testing.TB, n int) []byte {
+	t.Helper()
+	buf := make([]byte, n)
+	_, err := rand.Read(buf)
+	require.NoError(t, err)
+	return buf
 }
