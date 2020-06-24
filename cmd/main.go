@@ -5,9 +5,9 @@ import (
 	"github.com/alexpashkov/asched/internal/amenities"
 	"github.com/alexpashkov/asched/internal/config"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -19,24 +19,26 @@ import (
 )
 
 func main() {
-	conf, err := config.ReadConfig(log.Printf)
+	logger := logrus.New()
+	conf, err := config.ReadConfig(logger.Printf)
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "invalid config"))
+		logger.Fatal(errors.Wrap(err, "invalid config"))
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	mongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(conf.MongoDBRawConnString))
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "failed to create MongoDB client"))
+		logger.Fatal(errors.Wrap(err, "failed to create MongoDB client"))
 	}
 
 	amenitiesService := amenities.NewService(
+		logger.WithField("component", "AmenitiesService"),
 		mongoClient,
 		conf.MongoDBConnString.Database,
 		os.Getenv("PHOTOS_DIR"),
 	)
 	if err := amenitiesService.Start(ctx); err != nil {
-		log.Fatal(errors.Wrap(err, "failed to start amenities service"))
+		logger.Fatal(errors.Wrap(err, "failed to start amenities service"))
 	}
 	cancel()
 
@@ -47,6 +49,6 @@ func main() {
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", conf.Port)
-	log.Fatal(http.ListenAndServe(":"+conf.Port, nil))
+	logger.Printf("connect to http://localhost:%s/ for GraphQL playground", conf.Port)
+	logger.Fatal(http.ListenAndServe(":"+conf.Port, nil))
 }

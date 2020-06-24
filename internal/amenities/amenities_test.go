@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"github.com/alexpashkov/asched/graph/model"
 	"github.com/alexpashkov/asched/internal/config"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/mongo"
 	"os"
@@ -34,7 +35,7 @@ func TestAmenitiesService(t *testing.T) {
 	t.Cleanup(cancel)
 	t.Logf("connecting to MongoDB, conf: %#v", conf)
 	require.NoError(t, client.Ping(ctx, nil))
-	s := NewService(client, conf.MongoDBConnString.Database, photosDir)
+	s := NewService(logrus.New().WithField("component", "TestAmenitiesService"), client, conf.MongoDBConnString.Database, photosDir)
 	t.Cleanup(func() {
 		require.NoError(t, os.RemoveAll(photosDir))
 	})
